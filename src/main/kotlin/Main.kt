@@ -1,16 +1,69 @@
 package org.example
 
-//TIP 코드를 <b>실행</b>하려면 <shortcut actionId="Run"/>을(를) 누르거나
-// 에디터 여백에 있는 <icon src="AllIcons.Actions.Execute"/> 아이콘을 클릭하세요.
-fun main() {
-    val name = "Kotlin"
-    //TIP 캐럿을 강조 표시된 텍스트에 놓고 <shortcut actionId="ShowIntentionActions"/>을(를) 누르면
-    // IntelliJ IDEA이(가) 수정을 제안하는 것을 확인할 수 있습니다.
-    println("Hello, " + name + "!")
+import org.example.domain.wiseSaying.entity.WiseSaying
+import org.example.global.Request
 
-    for (i in 1..5) {
-        //TIP <shortcut actionId="Debug"/>을(를) 눌러 코드 디버그를 시작하세요. 1개의 <icon src="AllIcons.Debugger.Db_set_breakpoint"/> 중단점을 설정해 드렸습니다
-        // 언제든 <shortcut actionId="ToggleLineBreakpoint"/>을(를) 눌러 중단점을 더 추가할 수 있습니다.
-        println("i = $i")
+fun main() {
+
+    val wiseSayings = mutableListOf<WiseSaying>()
+
+    var lastId = 0
+
+    println("== 명언 앱 ==")
+    while (true) {
+        print("명령) ")
+        val input = readlnOrNull() ?: ""
+
+        val rq = Request(input)
+
+        when (rq.actionName) {
+            "종료" -> break
+            "등록" -> {
+                print("명언: ")
+                val saying = readlnOrNull() ?: ""
+                print("작가: ")
+                val author = readlnOrNull() ?: ""
+                val id = ++lastId
+                wiseSayings.add(WiseSaying(id, saying, author))
+
+                println("${lastId}번 명언이 등록되었습니다.")
+            }
+
+            "목록" -> {
+                println("번호 / 작가 / 명언")
+                println("----------------------")
+                wiseSayings.forEach {
+                    println("${it.id} / ${it.author} / ${it.saying}")
+                }
+            }
+
+            "삭제" -> {
+
+                val id = rq.getParam("id")?.toIntOrNull()
+
+                if (id == null) {
+                    println("삭제할 명언의 번호를 입력해주세요.")
+                    continue
+                }
+                val rst = wiseSayings.removeIf({ it.id == id })
+
+                if(rst) {
+                    println("${id}번 명언을 삭제했습니다.")
+                } else {
+                    println("${id}번 명언은 존재하지 않습니다.")
+                }
+
+//                rq.getParam("id")?.let {
+//                    it.toIntOrNull()?.let {
+//                        wiseSayings.removeIf { saying -> saying.id == it }
+//                        println("${it}번 명언을 삭제했습니다.")
+//                    } ?: println("올바른 번호를 입력해주세요.")
+//                } ?: println("삭제할 명언의 번호를 입력해주세요.")
+            }
+
+            else -> {
+                println("알 수 없는 명령입니다.")
+            }
+        }
     }
 }
